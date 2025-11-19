@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Назад" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Журнал фильтра"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Информация о фильтре -->
+    <TextView
+        android:id="@+id/filterNameText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Название фильтра"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/filterLocationText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Местоположение"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/installationDateText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Дата установки"
+        android:textSize="12sp"
+        android:textColor="#666" />
+
+    <!-- Следующее обслуживание -->
+    <TextView
+        android:id="@+id/nextMaintenanceText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Следующая замена: "
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:background="#f0f0f0" />
+
+    <!-- Кнопка добавления компонента -->
+    <Button
+        android:id="@+id/addComponentButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="+ Добавить компонент"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Список компонентов -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Компоненты фильтра:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/componentsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

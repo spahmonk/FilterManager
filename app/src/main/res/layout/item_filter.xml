@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/filterName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Название фильтра"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/filterLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Местоположение"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/installationDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Дата установки"
+            android:textSize="12sp"
+            android:textColor="#666" />
+
+        <TextView
+            android:id="@+id/nextMaintenance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Следующий осмотр"
+            android:textSize="12sp"
+            android:textColor="#2196F3"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Удалить"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
