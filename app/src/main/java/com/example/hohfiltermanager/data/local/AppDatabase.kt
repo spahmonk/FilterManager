@@ -7,7 +7,7 @@ import android.content.Context
 
 @Database(
     entities = [FilterEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "filter_database"
-                ).fallbackToDestructiveMigration() // Важно для разработки
+                ).fallbackToDestructiveMigration() // Добавь эту строку
                     .build()
                 INSTANCE = instance
                 instance
