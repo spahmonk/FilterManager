@@ -10,6 +10,7 @@ object ComponentType {
         name = "Минерализатор",
         imageResId = android.R.drawable.ic_menu_share,
         lifespanMonths = 12,
+        lastReplacementDate = 0L,
         installationInstructions = "1. Замените минерализатор\n2. Проверьте соединения",
         videoUrl = "https://youtube.com/минерализатор",
         purchaseUrl = "https://wildberries.ru/минерализатор"
@@ -175,10 +176,10 @@ object ComponentType {
         return listOf(POSTFILTER, MINERALIZER)
     }
 
-    fun calculateNextReplacement(lastReplacementDate: Long): Long {
+    fun calculateNextReplacement(component: FilterComponent, lastReplacementDate: Long): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = lastReplacementDate
-        calendar.add(Calendar.MONTH, this.lifespanMonths)
+        calendar.add(Calendar.MONTH, component.lifespanMonths)
         return calendar.timeInMillis
     }
 }

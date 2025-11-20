@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.example.hohfiltermanager.data.ComponentType
 import com.example.hohfiltermanager.data.FilterComponent
+import com.example.hohfiltermanager.data.local.FilterComponentEntity
 import com.example.hohfiltermanager.data.local.FilterEntity
 import com.example.hohfiltermanager.databinding.DialogAddFilterBinding
 import com.example.hohfiltermanager.data.local.AppDatabase
@@ -152,7 +153,13 @@ class AddFilterDialogFragment : DialogFragment() {
 
             // ИСПРАВЛЕНО: используем filterDao() если componentDao() не существует
             selectedComponents.forEach { component ->
-                val componentToSave = component.copy(filterId = newFilterId)
+                val componentToSave = FilterComponentEntity(
+                    filterId = newFilterId,
+                    componentTypeId = component.componentTypeId,
+                    customName = component.customName,
+                    lastReplacementDate = component.lastReplacementDate,
+                    isInstalled = component.isInstalled
+                )
                 // Используем filterDao() для сохранения компонентов
                 database.filterDao().insertComponent(componentToSave)
             }

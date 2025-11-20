@@ -117,19 +117,19 @@ class FilterDetailsActivity : AppCompatActivity() {
                 id = 1,
                 filterId = filterId,
                 lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 150), // 150 дней назад
-                nextReplacementDate = ComponentType.PREDFILTER.calculateNextReplacement()
+                nextReplacementDate = ComponentType.PREDFILTER.calculateNextReplacement(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 150))
             ),
             ComponentType.CARBON_FILTER.copy(
                 id = 2,
                 filterId = filterId,
                 lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 120), // 120 дней назад
-                nextReplacementDate = ComponentType.CARBON_FILTER.calculateNextReplacement()
+                nextReplacementDate = ComponentType.CARBON_FILTER.calculateNextReplacement(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 120))
             ),
             ComponentType.ACCUMULATOR_TANK.copy(
                 id = 3,
                 filterId = filterId,
                 lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 400), // 400 дней назад
-                nextReplacementDate = ComponentType.ACCUMULATOR_TANK.calculateNextReplacement()
+                nextReplacementDate = ComponentType.ACCUMULATOR_TANK.calculateNextReplacement(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 400))
             )
         )
 
@@ -192,7 +192,7 @@ class FilterDetailsActivity : AppCompatActivity() {
             val componentWithDates = component.copy(
                 filterId = filterId,
                 lastReplacementDate = System.currentTimeMillis(),
-                nextReplacementDate = component.calculateNextReplacement()
+                nextReplacementDate = component.calculateNextReplacement(System.currentTimeMillis())
             )
 
             val componentId = repository.addComponentToFilter(filterId, componentWithDates)
@@ -251,7 +251,7 @@ class FilterDetailsActivity : AppCompatActivity() {
             if (index != -1) {
                 val updatedComponent = component.copy(
                     lastReplacementDate = replacementDate,
-                    nextReplacementDate = component.calculateNextReplacement()
+                    nextReplacementDate = component.calculateNextReplacement(replacementDate)
                 )
 
                 installedComponents[index] = updatedComponent

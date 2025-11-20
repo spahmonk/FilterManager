@@ -49,7 +49,7 @@ class FilterRepository(private val database: AppDatabase) {
                 lastReplacementDate = component.lastReplacementDate,
                 isInstalled = component.isInstalled
             )
-            database.filterComponentDao().insertComponent(componentEntity)
+            database.filterDao().insertComponent(componentEntity)
         }
 
         return filterId
@@ -64,12 +64,13 @@ class FilterRepository(private val database: AppDatabase) {
             lastReplacementDate = component.lastReplacementDate,
             isInstalled = component.isInstalled
         )
-        return database.filterComponentDao().insertComponent(componentEntity)
+        database.filterDao().insertComponent(componentEntity)
+        return 0 // Заглушка, надо будет исправить
     }
 
     // Удалить фильтр
     suspend fun deleteFilter(filter: Filter) {
-        database.filterComponentDao().deleteComponentsForFilter(filter.id)
+        //database.filterComponentDao().deleteComponentsForFilter(filter.id)
         database.filterDao().deleteFilter(FilterEntity(
             id = filter.id,
             name = filter.name,
@@ -93,13 +94,13 @@ class FilterRepository(private val database: AppDatabase) {
                 id = 1,
                 filterId = filterId,
                 lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 150),
-                nextReplacementDate = ComponentType.PREDFILTER.calculateNextReplacement()
+                nextReplacementDate = ComponentType.calculateNextReplacement(ComponentType.PREDFILTER, System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 150))
             ),
             ComponentType.CARBON_FILTER.copy(
                 id = 2,
                 filterId = filterId,
                 lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 120),
-                nextReplacementDate = ComponentType.CARBON_FILTER.calculateNextReplacement()
+                nextReplacementDate = ComponentType.calculateNextReplacement(ComponentType.CARBON_FILTER, System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 120))
             )
         )
 
@@ -116,10 +117,10 @@ class FilterRepository(private val database: AppDatabase) {
     }
 
     suspend fun updateComponentReplacement(componentId: Long, replacementDate: Long) {
-        val componentEntity = database.filterComponentDao().getComponentById(componentId)
-        componentEntity?.let {
-            val updatedEntity = it.copy(lastReplacementDate = replacementDate)
-            database.filterComponentDao().updateComponent(updatedEntity)
-        }
+        //val componentEntity = database.filterComponentDao().getComponentById(componentId)
+        //componentEntity?.let {
+        //    val updatedEntity = it.copy(lastReplacementDate = replacementDate)
+        //    database.filterComponentDao().updateComponent(updatedEntity)
+        //}
     }
 }
