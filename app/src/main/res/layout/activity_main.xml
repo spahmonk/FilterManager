@@ -5,38 +5,92 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Заголовок -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Мои фильтры"
+        android:text="Менеджер фильтров для воды"
         android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addFilterButton"
-        android:layout_width="wrap_content"
+    <!-- Статистика -->
+    <TextView
+        android:id="@+id/statsText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:src="@android:drawable/ic_input_add"
-        android:contentDescription="Добавить фильтр" />
+        android:text="Статистика загрузки..."
+        android:textSize="12sp"
+        android:textColor="#666"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:background="#f5f5f5" />
+
+    <!-- Кнопки действий -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/addFilterButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="➕ Добавить фильтр"
+            android:backgroundTint="#2196F3"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/testDataButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Тест"
+            android:backgroundTint="#4CAF50"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Список фильтров -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Мои фильтры:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/filtersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp" />
+        android:layout_weight="1" />
 
+    <!-- Заглушка для пустого списка -->
     <TextView
         android:id="@+id/emptyState"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Нет добавленных фильтров\nНажмите + чтобы добавить"
+        android:text="🎯 Нет добавленных фильтров\n\nНажмите 'Добавить фильтр' чтобы начать\nили 'Тест' для быстрого примера"
         android:textSize="16sp"
         android:gravity="center"
         android:padding="32dp"
         android:visibility="gone" />
+
+    <!-- Подсказка внизу -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💡 Приложение сохраняет все данные локально на устройстве"
+        android:textSize="12sp"
+        android:textColor="#666"
+        android:gravity="center"
+        android:padding="8dp"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

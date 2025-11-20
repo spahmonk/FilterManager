@@ -6,12 +6,13 @@ import androidx.room.RoomDatabase
 import android.content.Context
 
 @Database(
-    entities = [FilterEntity::class],
-    version = 2,
+    entities = [FilterEntity::class, FilterComponentEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun filterDao(): FilterDao
+    abstract fun filterComponentDao(): FilterComponentDao
 
     companion object {
         @Volatile
@@ -23,19 +24,11 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "filter_database"
-                ).fallbackToDestructiveMigration() // Добавь эту строку
+                ).fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
             }
-        }
-
-        // Простая версия для тестирования
-        fun getTestInstance(context: Context): AppDatabase {
-            return Room.inMemoryDatabaseBuilder(
-                context.applicationContext,
-                AppDatabase::class.java
-            ).build()
         }
     }
 }

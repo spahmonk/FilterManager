@@ -2,9 +2,10 @@ package com.example.hohfiltermanager.data
 
 object ComponentType {
     val PREDFILTER = FilterComponent(
-        id = 1,
+        componentTypeId = 1,
+        filterId = 0, // Будет установлено при добавлении к фильтру
         name = "Предфильтр PP",
-        imageResId = android.R.drawable.ic_menu_report_image, // временная иконка
+        imageResId = android.R.drawable.ic_menu_report_image,
         lifespanMonths = 6,
         installationInstructions = "1. Перекройте воду\n2. Откройте кран для сброса давления\n3. Отсоедините колбу\n4. Замените картридж\n5. Соберите обратно",
         videoUrl = "https://youtube.com/предфильтр",
@@ -12,7 +13,8 @@ object ComponentType {
     )
 
     val CARBON_FILTER = FilterComponent(
-        id = 2,
+        componentTypeId = 2,
+        filterId = 0,
         name = "Угольный фильтр",
         imageResId = android.R.drawable.ic_menu_compass,
         lifespanMonths = 6,
@@ -22,7 +24,8 @@ object ComponentType {
     )
 
     val MEMBRANE = FilterComponent(
-        id = 3,
+        componentTypeId = 3,
+        filterId = 0,
         name = "Мембрана",
         imageResId = android.R.drawable.ic_menu_agenda,
         lifespanMonths = 24,
@@ -32,7 +35,8 @@ object ComponentType {
     )
 
     val POSTFILTER = FilterComponent(
-        id = 4,
+        componentTypeId = 4,
+        filterId = 0,
         name = "Постфильтр",
         imageResId = android.R.drawable.ic_menu_help,
         lifespanMonths = 12,
@@ -41,9 +45,39 @@ object ComponentType {
         purchaseUrl = "https://yandex.ru/постфильтр"
     )
 
-    val ALL_COMPONENTS = listOf(PREDFILTER, CARBON_FILTER, MEMBRANE, POSTFILTER)
+    // НОВЫЙ: Бак-накопитель
+    val ACCUMULATOR_TANK = FilterComponent(
+        componentTypeId = 5,
+        filterId = 0,
+        name = "Бак-накопитель",
+        imageResId = android.R.drawable.ic_menu_upload,
+        lifespanMonths = 60, // 5 лет
+        installationInstructions = "1. Проверьте давление в баке (должно быть 0.5-0.7 атм)\n2. При необходимости подкачайте воздух\n3. Проверьте герметичность соединений\n4. При повреждении замените бак",
+        videoUrl = "https://youtube.com/бак-накопитель",
+        purchaseUrl = "https://ozon.ru/бак-накопитель"
+    )
+
+    val MINERALIZER = FilterComponent(
+        componentTypeId = 6,
+        filterId = 0,
+        name = "Минерализатор",
+        imageResId = android.R.drawable.ic_menu_share,
+        lifespanMonths = 12,
+        installationInstructions = "1. Замените минерализатор\n2. Проверьте соединения",
+        videoUrl = "https://youtube.com/минерализатор",
+        purchaseUrl = "https://wildberries.ru/минерализатор"
+    )
+
+    val ALL_COMPONENTS = listOf(
+        PREDFILTER,
+        CARBON_FILTER,
+        MEMBRANE,
+        POSTFILTER,
+        ACCUMULATOR_TANK,
+        MINERALIZER
+    )
 
     fun getById(id: Long): FilterComponent? {
-        return ALL_COMPONENTS.find { it.id == id }
+        return ALL_COMPONENTS.find { it.componentTypeId == id }
     }
 }
