@@ -101,7 +101,7 @@ class ComponentAdapter(
                     }
                 }
             } else {
-                nextReplacementText.text = "Срок замены не установлен"
+                nextReplacementText.text = "Срок замены не установлен этот!!!"
                 progressBar.progress = 0
                 statusText.text = "🆕 Новый компонент"
                 statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.darker_gray))

@@ -102,13 +102,15 @@ class FilterRepository(private val database: AppDatabase) {
     }
 
     private fun toFilterComponent(entity: FilterComponentEntity): FilterComponent {
-        val componentType = ComponentType.getById(entity.componentTypeId)
-        return componentType!!.copy(
+        val componentType = ComponentType.getById(entity.componentTypeId)!!
+        val nextReplacement = componentType.calculateNextReplacement(entity.lastReplacementDate)
+        return componentType.copy(
             id = entity.id,
             filterId = entity.filterId,
             customName = entity.customName,
             lastReplacementDate = entity.lastReplacementDate,
-            isInstalled = entity.isInstalled
+            isInstalled = entity.isInstalled,
+            nextReplacementDate = nextReplacement
         )
     }
 }
