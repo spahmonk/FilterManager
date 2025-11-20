@@ -17,7 +17,7 @@ object ComponentType {
     )
     val PREDFILTER = FilterComponent(
         componentTypeId = 1,
-        filterId = 0, // Будет установлен при добавлении к фильтру
+        filterId = 0,
         name = "Предфильтр PP",
         imageResId = android.R.drawable.ic_menu_report_image,
         lifespanMonths = 6,
