@@ -8,6 +8,8 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hohfiltermanager.data.FilterComponent
 import com.example.hohfiltermanager.R
@@ -17,28 +19,23 @@ import java.util.*
 class ComponentAdapter(
     private val onComponentClick: (FilterComponent) -> Unit,
     private val onReplaceClick: (FilterComponent) -> Unit
-) : RecyclerView.Adapter<ComponentAdapter.ComponentViewHolder>() {
-
-    private var components: List<FilterComponent> = emptyList()
-
-    fun submitList(newComponents: List<FilterComponent>) {
-        this.components = newComponents
-        notifyDataSetChanged()
-    }
+) : ListAdapter<FilterComponent, ComponentAdapter.ComponentViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComponentViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_component, parent, false)
-        return ComponentViewHolder(view)
+        return ComponentViewHolder(view, onComponentClick, onReplaceClick)
     }
 
     override fun onBindViewHolder(holder: ComponentViewHolder, position: Int) {
-        holder.bind(components[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int = components.size
-
-    inner class ComponentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ComponentViewHolder(
+        itemView: View,
+        private val onComponentClick: (FilterComponent) -> Unit,
+        private val onReplaceClick: (FilterComponent) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
         private val iconImage: ImageView = itemView.findViewById(R.id.componentIcon)
         private val nameText: TextView = itemView.findViewById(R.id.componentName)
         private val statusText: TextView = itemView.findViewById(R.id.componentStatus)
@@ -47,8 +44,22 @@ class ComponentAdapter(
         private val progressBar: ProgressBar = itemView.findViewById(R.id.replacementProgress)
         private val replaceButton: Button = itemView.findViewById(R.id.replaceButton)
 
+        private var currentComponent: FilterComponent? = null
+
+        init {
+            itemView.setOnClickListener {
+                currentComponent?.let { onComponentClick(it) }
+            }
+
+            replaceButton.setOnClickListener {
+                currentComponent?.let { onReplaceClick(it) }
+            }
+        }
+
         fun bind(component: FilterComponent) {
-            // Устанавливаем иконку (временно используем системные)
+            currentComponent = component
+
+            // Устанавливаем иконку
             iconImage.setImageResource(component.imageResId)
 
             nameText.text = component.name
@@ -56,58 +67,57 @@ class ComponentAdapter(
             val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 
             // Дата последней замены
-            if (component.lastReplacementDate != null) {
-                lastReplacementText.text = "Заменен: ${dateFormat.format(component.lastReplacementDate)}"
-            } else {
-                lastReplacementText.text = "Еще не заменялся"
-            }
+            lastReplacementText.text = "Заменен: ${dateFormat.format(Date(component.lastReplacementDate))}"
 
             // Дата следующей замены и прогресс
             if (component.nextReplacementDate != null) {
-                nextReplacementText.text = "Следующая замена: ${dateFormat.format(component.nextReplacementDate)}"
+                nextReplacementText.text = "Следующая замена: ${dateFormat.format(Date(component.nextReplacementDate))}"
 
-                // Расчет прогресса до замены
-                val progress = calculateReplacementProgress(component)
+                val progress = component.getProgressPercentage()
                 progressBar.progress = progress
 
                 // Статус компонента
-                if (component.needsReplacement()) {
-                    statusText.text = "ТРЕБУЕТ ЗАМЕНЫ!"
-                    statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.holo_red_dark))
-                } else {
-                    statusText.text = "В норме ($progress%)"
-                    statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.holo_green_dark))
+                when {
+                    component.needsReplacement() -> {
+                        statusText.text = "🚨 ТРЕБУЕТ ЗАМЕНЫ!"
+                        statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.holo_red_dark))
+                        replaceButton.isEnabled = true
+                        replaceButton.alpha = 1.0f
+                    }
+                    component.isReplacementSoon(30) -> {
+                        val daysLeft = component.getDaysUntilReplacement()
+                        statusText.text = "⚠️ Скоро замена ($daysLeft дней)"
+                        statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.holo_orange_dark))
+                        replaceButton.isEnabled = true
+                        replaceButton.alpha = 1.0f
+                    }
+                    else -> {
+                        statusText.text = "✅ В норме ($progress%)"
+                        statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.holo_green_dark))
+                        replaceButton.isEnabled = false
+                        replaceButton.alpha = 0.5f
+                    }
                 }
             } else {
                 nextReplacementText.text = "Срок замены не установлен"
                 progressBar.progress = 0
-                statusText.text = "Новый"
+                statusText.text = "🆕 Новый компонент"
                 statusText.setTextColor(ContextCompat.getColor(itemView.context, android.R.color.darker_gray))
-            }
-
-            // Кнопка замены
-            replaceButton.setOnClickListener {
-                onReplaceClick(component)
-            }
-
-            // Клик по всему элементу
-            itemView.setOnClickListener {
-                onComponentClick(component)
+                replaceButton.isEnabled = true
+                replaceButton.alpha = 1.0f
             }
         }
+    }
 
-        private fun calculateReplacementProgress(component: FilterComponent): Int {
-            val lastDate = component.lastReplacementDate ?: return 0
-            val nextDate = component.nextReplacementDate ?: return 0
-            val currentDate = Date()
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<FilterComponent>() {
+            override fun areItemsTheSame(oldItem: FilterComponent, newItem: FilterComponent): Boolean {
+                return oldItem.id == newItem.id
+            }
 
-            if (currentDate.after(nextDate)) return 100
-            if (currentDate.before(lastDate)) return 0
-
-            val totalDuration = nextDate.time - lastDate.time
-            val elapsedDuration = currentDate.time - lastDate.time
-
-            return ((elapsedDuration.toDouble() / totalDuration.toDouble()) * 100).toInt()
+            override fun areContentsTheSame(oldItem: FilterComponent, newItem: FilterComponent): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }

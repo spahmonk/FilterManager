@@ -57,47 +57,30 @@ class FilterAdapter(
         fun bind(filter: Filter) {
             currentFilter = filter
 
-            // Основная информация
             nameTextView.text = filter.name
             locationTextView.text = filter.location ?: "Местоположение не указано"
 
-            // Форматирование даты
             val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             val dateString = dateFormat.format(Date(filter.installationDate))
             dateTextView.text = "Установлен: $dateString"
 
-            // Расчет следующего обслуживания (можно добавить логику позже)
-            val nextMaintenanceText = when {
-                filter.components.isNotEmpty() -> {
-                    val nextDate = filter.components
-                        .filter { it.nextReplacementDate != null }
-                        .minByOrNull { it.nextReplacementDate!! }
-                        ?.nextReplacementDate
+            val status = filter.getMaintenanceStatus()
+            maintenanceTextView.text = status
 
-                    if (nextDate != null) {
-                        val nextDateString = dateFormat.format(Date(nextDate.toString()))
-                        "Следующая замена: $nextDateString"
-                    } else {
-                        "Добавьте компоненты"
-                    }
-                }
-                else -> {
-                    "Добавьте компоненты"
-                }
-            }
-
-            maintenanceTextView.text = nextMaintenanceText
-
-            // Визуальное оформление статуса
             when {
-                nextMaintenanceText.contains("Следующая замена") -> {
+                status.contains("Требует внимания") -> {
                     maintenanceTextView.setTextColor(
-                        ContextCompat.getColor(itemView.context, android.R.color.holo_blue_dark)
+                        ContextCompat.getColor(itemView.context, android.R.color.holo_red_dark)
+                    )
+                }
+                status.contains("Скоро замена") -> {
+                    maintenanceTextView.setTextColor(
+                        ContextCompat.getColor(itemView.context, android.R.color.holo_orange_dark)
                     )
                 }
                 else -> {
                     maintenanceTextView.setTextColor(
-                        ContextCompat.getColor(itemView.context, android.R.color.darker_gray)
+                        ContextCompat.getColor(itemView.context, android.R.color.holo_green_dark)
                     )
                 }
             }

@@ -9,10 +9,7 @@ interface FilterComponentDao {
     fun getComponentsForFilter(filterId: Long): Flow<List<FilterComponentEntity>>
 
     @Query("SELECT * FROM filter_components")
-    fun getAllComponents(): Flow<List<FilterComponentEntity>>
-
-    @Query("SELECT * FROM filter_components WHERE id = :componentId")
-    suspend fun getComponentById(componentId: Long): FilterComponentEntity?
+    suspend fun getAllComponents(): List<FilterComponentEntity>
 
     @Insert
     suspend fun insertComponent(component: FilterComponentEntity): Long
@@ -25,4 +22,7 @@ interface FilterComponentDao {
 
     @Query("DELETE FROM filter_components WHERE filterId = :filterId")
     suspend fun deleteComponentsForFilter(filterId: Long)
+
+    @Query("SELECT * FROM filter_components WHERE id = :componentId")
+    suspend fun getComponentById(componentId: Long): FilterComponentEntity?
 }

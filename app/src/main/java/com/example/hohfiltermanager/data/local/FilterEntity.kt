@@ -5,9 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "filters")
 data class FilterEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey val id: Long,
     val name: String,
     val location: String,
-    val installationDate: Long = System.currentTimeMillis()
+    val installationDate: Long
 )

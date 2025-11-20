@@ -30,5 +30,13 @@ abstract class AppDatabase : RoomDatabase() {
                 instance
             }
         }
+
+        // Для тестирования
+        fun getTestInstance(context: Context): AppDatabase {
+            return Room.inMemoryDatabaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java
+            ).build()
+        }
     }
 }

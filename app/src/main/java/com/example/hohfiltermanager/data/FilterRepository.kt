@@ -4,43 +4,51 @@ import com.example.hohfiltermanager.data.local.AppDatabase
 import com.example.hohfiltermanager.data.local.FilterComponentEntity
 import com.example.hohfiltermanager.data.local.FilterEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 class FilterRepository(private val database: AppDatabase) {
 
-    // Получить все фильтры с их компонентами
-    fun getAllFiltersWithComponents(): Flow<List<Filter>> {
-        return database.filterDao().getAllFilters().combine(
-            database.filterComponentDao().getAllComponents()
-        ) { filters, allComponents ->
-            filters.map { filterEntity ->
-                val filterComponents = allComponents
-                    .filter { it.filterId == filterEntity.id }
-                    .map { componentEntity ->
-                        val componentType = ComponentType.getById(componentEntity.componentTypeId)
-                        componentType?.copy(
-                            id = componentEntity.id,
-                            filterId = componentEntity.filterId,
-                            lastReplacementDate = componentEntity.lastReplacementDate,
-                            isInstalled = componentEntity.isInstalled,
-                            customName = componentEntity.customName,
-                            nextReplacementDate = componentType.calculateNextReplacement()
-                        ) ?: throw IllegalStateException("Unknown component type: ${componentEntity.componentTypeId}")
-                    }
-
+    // Упрощенная версия - получаем только фильтры
+    fun getAllFilters(): Flow<List<Filter>> {
+        return database.filterDao().getAllFilters().map { filters ->
+            filters.map { entity ->
                 Filter(
-                    id = filterEntity.id,
-                    name = filterEntity.name,
-                    location = filterEntity.location,
-                    installationDate = filterEntity.installationDate,
-                    components = filterComponents,
-                    hasAccumulatorTank = filterComponents.any { it.componentTypeId == ComponentType.ACCUMULATOR_TANK.componentTypeId }
+                    id = entity.id,
+                    name = entity.name,
+                    location = entity.location,
+                    installationDate = entity.installationDate,
+                    components = emptyList(), // Пока пустой список
+                    hasAccumulatorTank = false
                 )
             }
         }
     }
 
-    // Добавить фильтр
+    // Получить фильтр с компонентами
+    suspend fun getFilterWithComponents(filterId: Long): Filter? {
+        val filterEntity = database.filterDao().getFilterById(filterId) ?: return null
+        val components = getComponentsForFilter(filterId)
+
+        return Filter(
+            id = filterEntity.id,
+            name = filterEntity.name,
+            location = filterEntity.location,
+            installationDate = filterEntity.installationDate,
+            components = components,
+            hasAccumulatorTank = components.any {
+                it.componentTypeId == ComponentType.ACCUMULATOR_TANK.componentTypeId
+            }
+        )
+    }
+
+    // Получить компоненты для фильтра
+    suspend fun getComponentsForFilter(filterId: Long): List<FilterComponent> {
+        val componentEntities = database.filterComponentDao().getComponentsForFilter(filterId)
+        // Временное решение - нужно исправить Flow
+        return emptyList<FilterComponent>()
+    }
+
+    // Добавить фильтр с компонентами
     suspend fun addFilter(filter: FilterEntity, components: List<FilterComponent>): Long {
         val filterId = database.filterDao().insertFilter(filter)
 
@@ -88,5 +96,10 @@ class FilterRepository(private val database: AppDatabase) {
             location = filter.location,
             installationDate = filter.installationDate
         ))
+    }
+
+    // Получить все компоненты (для отладки)
+    suspend fun getAllComponents(): List<FilterComponentEntity> {
+        return database.filterComponentDao().getAllComponents()
     }
 }

@@ -66,21 +66,41 @@ class AddFilterDialogFragment : DialogFragment() {
     }
 
     private fun setupClickListeners() {
-        binding.addComponentButton.setOnClickListener {
-            val selectedPosition = binding.componentsSpinner.selectedItemPosition
+        addComponentButton.setOnClickListener {
+            val selectedPosition = componentsSpinner.selectedItemPosition
             if (selectedPosition >= 0) {
                 val selectedComponent = ComponentType.ALL_COMPONENTS[selectedPosition]
-                selectedComponents.add(selectedComponent)
-                updateSelectedComponentsList()
+                if (selectedComponents.none { it.componentTypeId == selectedComponent.componentTypeId }) {
+                    // ИСПРАВЛЕННАЯ ЛОГИКА КОПИРОВАНИЯ:
+                    val componentToAdd = selectedComponent.copy(
+                        filterId = 0, // Будет установлен при сохранении
+                        lastReplacementDate = installationDate,
+                        nextReplacementDate = selectedComponent.calculateNextReplacement()
+                    )
+                    selectedComponents.add(componentToAdd)
+                    updateSelectedComponentsList()
+                } else {
+                    Toast.makeText(requireContext(), "Этот компонент уже добавлен", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
-        binding.saveButton.setOnClickListener {
-            saveFilter()
-        }
-
-        binding.cancelButton.setOnClickListener {
-            dismiss()
+        accumulatorCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            val accumulatorType = ComponentType.ACCUMULATOR_TANK
+            if (isChecked) {
+                if (selectedComponents.none { it.componentTypeId == accumulatorType.componentTypeId }) {
+                    val accumulator = accumulatorType.copy(
+                        filterId = 0,
+                        lastReplacementDate = installationDate,
+                        nextReplacementDate = accumulatorType.calculateNextReplacement()
+                    )
+                    selectedComponents.add(accumulator)
+                    updateSelectedComponentsList()
+                }
+            } else {
+                selectedComponents.removeAll { it.componentTypeId == accumulatorType.componentTypeId }
+                updateSelectedComponentsList()
+            }
         }
     }
 
