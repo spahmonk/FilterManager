@@ -3,6 +3,7 @@ package com.example.hohfiltermanager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -85,10 +86,8 @@ class ComponentDetailsActivity : AppCompatActivity() {
         componentNameText.text = componentName
         title = componentName
 
-        // Инструкции
         instructionsText.text = installationInstructions
 
-        // Даты замен
         val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 
         if (lastReplacementDate != null) {
