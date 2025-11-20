@@ -9,7 +9,7 @@ interface FilterComponentDao {
     fun getComponentsForFilter(filterId: Long): Flow<List<FilterComponentEntity>>
 
     @Query("SELECT * FROM filter_components")
-    suspend fun getAllComponents(): List<FilterComponentEntity>
+    fun getAllComponents(): Flow<List<FilterComponentEntity>> // Убери suspend
 
     @Insert
     suspend fun insertComponent(component: FilterComponentEntity): Long

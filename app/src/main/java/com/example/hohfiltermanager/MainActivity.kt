@@ -77,18 +77,16 @@ class MainActivity : AppCompatActivity() {
         val dialog = SimpleAddFilterDialogFragment()
         dialog.onFilterAdded = { name, location ->
             lifecycleScope.launch {
-                val filterEntity = FilterEntity(
+                val filterEntity = com.example.hohfiltermanager.data.local.FilterEntity(
                     id = System.currentTimeMillis(),
                     name = name,
                     location = location,
                     installationDate = System.currentTimeMillis()
                 )
 
+                // Добавляем только базовые компоненты
                 val defaultComponents = listOf(
-                    ComponentType.PREDFILTER.copy(
-                        lastReplacementDate = System.currentTimeMillis()
-                    ),
-                    ComponentType.CARBON_FILTER.copy(
+                    com.example.hohfiltermanager.data.ComponentType.PREDFILTER.copy(
                         lastReplacementDate = System.currentTimeMillis()
                     )
                 )
@@ -97,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
                 android.widget.Toast.makeText(
                     this@MainActivity,
-                    "Фильтр '$name' добавлен!",
+                    "Система '$name' добавлена!",
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
             }

@@ -1,7 +1,19 @@
 package com.example.hohfiltermanager.data
 
+import java.util.Calendar
+
 object ComponentType {
-    // Предфильтр механической очистки
+
+    val MINERALIZER = FilterComponent(
+        componentTypeId = 6,
+        filterId = 0,
+        name = "Минерализатор",
+        imageResId = android.R.drawable.ic_menu_share,
+        lifespanMonths = 12,
+        installationInstructions = "1. Замените минерализатор\n2. Проверьте соединения",
+        videoUrl = "https://youtube.com/минерализатор",
+        purchaseUrl = "https://wildberries.ru/минерализатор"
+    )
     val PREDFILTER = FilterComponent(
         componentTypeId = 1,
         filterId = 0, // Будет установлен при добавлении к фильтру
@@ -15,7 +27,6 @@ object ComponentType {
         purchaseUrl = "https://ozon.ru/предфильтр"
     )
 
-    // Угольный фильтр
     val CARBON_FILTER = FilterComponent(
         componentTypeId = 2,
         filterId = 0,
@@ -115,31 +126,8 @@ object ComponentType {
         return ALL_COMPONENTS.find { it.componentTypeId == id }
     }
 
-    // Получить компоненты по категориям
-    fun getPreFilters(): List<FilterComponent> {
-        return listOf(PREDFILTER, CARBON_FILTER)
-    }
-
-    fun getMainFilters(): List<FilterComponent> {
-        return listOf(MEMBRANE)
-    }
-
-    fun getPostFilters(): List<FilterComponent> {
-        return listOf(POSTFILTER, UV_LAMP, ION_EXCHANGE)
-    }
-
     fun getSystemComponents(): List<FilterComponent> {
         return listOf(ACCUMULATOR_TANK)
-    }
-
-    // Получить компоненты для определенного типа системы
-    fun getComponentsForSystem(systemType: String): List<FilterComponent> {
-        return when (systemType) {
-            "BASIC" -> listOf(PREDFILTER, CARBON_FILTER)
-            "OSMOSIS" -> listOf(PREDFILTER, CARBON_FILTER, MEMBRANE, POSTFILTER)
-            "FULL" -> ALL_COMPONENTS
-            else -> emptyList()
-        }
     }
 
     // Получить рекомендуемый срок замены в текстовом формате
@@ -162,5 +150,35 @@ object ComponentType {
                 daysUntilReplacement <= daysBefore
             } ?: false
         }
+    }
+
+    // Получить компоненты для определенного типа системы
+    fun getComponentsForSystem(systemType: String): List<FilterComponent> {
+        return when (systemType) {
+            "BASIC" -> listOf(PREDFILTER, CARBON_FILTER)
+            "OSMOSIS" -> listOf(PREDFILTER, CARBON_FILTER, MEMBRANE, POSTFILTER, ACCUMULATOR_TANK)
+            "FULL" -> ALL_COMPONENTS
+            else -> emptyList()
+        }
+    }
+
+    // Получить компоненты по категориям
+    fun getPreFilters(): List<FilterComponent> {
+        return listOf(PREDFILTER, CARBON_FILTER)
+    }
+
+    fun getMainFilters(): List<FilterComponent> {
+        return listOf(MEMBRANE)
+    }
+
+    fun getPostFilters(): List<FilterComponent> {
+        return listOf(POSTFILTER, MINERALIZER)
+    }
+
+    fun calculateNextReplacement(lastReplacementDate: Long): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = lastReplacementDate
+        calendar.add(Calendar.MONTH, this.lifespanMonths)
+        return calendar.timeInMillis
     }
 }

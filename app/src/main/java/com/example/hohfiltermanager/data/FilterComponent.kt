@@ -15,7 +15,7 @@ data class FilterComponent(
     val isInstalled: Boolean = true,
     val customName: String? = null
 ) {
-    fun calculateNextReplacement(): Long {
+    fun calculateNextReplacement(lastReplacementDate: Long): Long {
         val calendar = java.util.Calendar.getInstance()
         calendar.timeInMillis = lastReplacementDate
         calendar.add(java.util.Calendar.MONTH, lifespanMonths)

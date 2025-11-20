@@ -4,8 +4,11 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.example.hohfiltermanager.data.ComponentType
+import com.example.hohfiltermanager.data.FilterComponent
 import com.example.hohfiltermanager.data.local.FilterEntity
 import com.example.hohfiltermanager.databinding.DialogAddFilterBinding
 import com.example.hohfiltermanager.data.local.AppDatabase
@@ -20,7 +23,7 @@ class AddFilterDialogFragment : DialogFragment() {
     private lateinit var database: AppDatabase
     var onFilterAdded: (() -> Unit)? = null
 
-    private val selectedComponents = mutableListOf<com.example.hohfiltermanager.data.FilterComponent>()
+    private val selectedComponents = mutableListOf<FilterComponent>()
     private var installationDate = Calendar.getInstance().time
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -34,6 +37,7 @@ class AddFilterDialogFragment : DialogFragment() {
         setupComponentsSpinner()
         setupDatePicker()
         setupClickListeners()
+        setupSaveButton()
 
         return dialog
     }
@@ -66,16 +70,15 @@ class AddFilterDialogFragment : DialogFragment() {
     }
 
     private fun setupClickListeners() {
-        addComponentButton.setOnClickListener {
-            val selectedPosition = componentsSpinner.selectedItemPosition
+        binding.addComponentButton.setOnClickListener {
+            val selectedPosition = binding.componentsSpinner.selectedItemPosition
             if (selectedPosition >= 0) {
                 val selectedComponent = ComponentType.ALL_COMPONENTS[selectedPosition]
                 if (selectedComponents.none { it.componentTypeId == selectedComponent.componentTypeId }) {
-                    // ИСПРАВЛЕННАЯ ЛОГИКА КОПИРОВАНИЯ:
                     val componentToAdd = selectedComponent.copy(
-                        filterId = 0, // Будет установлен при сохранении
-                        lastReplacementDate = installationDate,
-                        nextReplacementDate = selectedComponent.calculateNextReplacement()
+                        filterId = 0,
+                        lastReplacementDate = installationDate.time,
+                        nextReplacementDate = selectedComponent.calculateNextReplacement(installationDate.time) // передаем параметр
                     )
                     selectedComponents.add(componentToAdd)
                     updateSelectedComponentsList()
@@ -85,14 +88,16 @@ class AddFilterDialogFragment : DialogFragment() {
             }
         }
 
-        accumulatorCheckbox.setOnCheckedChangeListener { _, isChecked ->
+        // ИСПРАВЛЕНО: правильное имя чекбокса (должно совпадать с layout)
+        binding.accumulatorCheckbox.setOnCheckedChangeListener { _, isChecked ->
             val accumulatorType = ComponentType.ACCUMULATOR_TANK
             if (isChecked) {
                 if (selectedComponents.none { it.componentTypeId == accumulatorType.componentTypeId }) {
+                    // ИСПРАВЛЕНО: преобразование Date в Long
                     val accumulator = accumulatorType.copy(
                         filterId = 0,
-                        lastReplacementDate = installationDate,
-                        nextReplacementDate = accumulatorType.calculateNextReplacement()
+                        lastReplacementDate = installationDate.time, // Преобразуем Date в Long
+                        nextReplacementDate = accumulatorType.calculateNextReplacement(installationDate.time) // Передаем timestamp
                     )
                     selectedComponents.add(accumulator)
                     updateSelectedComponentsList()
@@ -104,9 +109,25 @@ class AddFilterDialogFragment : DialogFragment() {
         }
     }
 
+    private fun setupSaveButton() {
+        binding.saveButton.setOnClickListener {
+            saveFilter()
+        }
+
+        binding.cancelButton.setOnClickListener {
+            dismiss()
+        }
+    }
+
     private fun updateSelectedComponentsList() {
-        val componentsText = selectedComponents.joinToString("\n") { "• ${it.name} (${it.lifespanMonths} мес.)" }
-        binding.selectedComponentsText.text = componentsText
+        if (selectedComponents.isEmpty()) {
+            binding.selectedComponentsText.text = "Нет выбранных компонентов"
+            binding.selectedComponentsText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+        } else {
+            val componentsText = selectedComponents.joinToString("\n") { "• ${it.name} (${it.lifespanMonths} мес.)" }
+            binding.selectedComponentsText.text = componentsText
+            binding.selectedComponentsText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+        }
     }
 
     private fun saveFilter() {
@@ -119,14 +140,22 @@ class AddFilterDialogFragment : DialogFragment() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
+            val newFilterId = System.currentTimeMillis()
+
             val newFilter = FilterEntity(
-                id = System.currentTimeMillis(),
+                id = newFilterId,
                 name = name,
                 location = location,
                 installationDate = installationDate.time
             )
-
             database.filterDao().insertFilter(newFilter)
+
+            // ИСПРАВЛЕНО: используем filterDao() если componentDao() не существует
+            selectedComponents.forEach { component ->
+                val componentToSave = component.copy(filterId = newFilterId)
+                // Используем filterDao() для сохранения компонентов
+                database.filterDao().insertComponent(componentToSave)
+            }
 
             CoroutineScope(Dispatchers.Main).launch {
                 onFilterAdded?.invoke()

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 
 class FilterRepository(private val database: AppDatabase) {
 
-    // Упрощенная версия - получаем только фильтры
+    // Упрощенная версия - только фильтры без компонентов
     fun getAllFilters(): Flow<List<Filter>> {
         return database.filterDao().getAllFilters().map { filters ->
             filters.map { entity ->
@@ -24,28 +24,17 @@ class FilterRepository(private val database: AppDatabase) {
         }
     }
 
-    // Получить фильтр с компонентами
-    suspend fun getFilterWithComponents(filterId: Long): Filter? {
+    // Получить фильтр по ID
+    suspend fun getFilterById(filterId: Long): Filter? {
         val filterEntity = database.filterDao().getFilterById(filterId) ?: return null
-        val components = getComponentsForFilter(filterId)
-
         return Filter(
             id = filterEntity.id,
             name = filterEntity.name,
             location = filterEntity.location,
             installationDate = filterEntity.installationDate,
-            components = components,
-            hasAccumulatorTank = components.any {
-                it.componentTypeId == ComponentType.ACCUMULATOR_TANK.componentTypeId
-            }
+            components = emptyList(),
+            hasAccumulatorTank = false
         )
-    }
-
-    // Получить компоненты для фильтра
-    suspend fun getComponentsForFilter(filterId: Long): List<FilterComponent> {
-        val componentEntities = database.filterComponentDao().getComponentsForFilter(filterId)
-        // Временное решение - нужно исправить Flow
-        return emptyList<FilterComponent>()
     }
 
     // Добавить фильтр с компонентами
@@ -78,16 +67,7 @@ class FilterRepository(private val database: AppDatabase) {
         return database.filterComponentDao().insertComponent(componentEntity)
     }
 
-    // Обновить замену компонента
-    suspend fun updateComponentReplacement(componentId: Long, replacementDate: Long) {
-        val componentEntity = database.filterComponentDao().getComponentById(componentId)
-        componentEntity?.let {
-            val updatedEntity = it.copy(lastReplacementDate = replacementDate)
-            database.filterComponentDao().updateComponent(updatedEntity)
-        }
-    }
-
-    // Удалить фильтр и его компоненты
+    // Удалить фильтр
     suspend fun deleteFilter(filter: Filter) {
         database.filterComponentDao().deleteComponentsForFilter(filter.id)
         database.filterDao().deleteFilter(FilterEntity(
@@ -98,8 +78,48 @@ class FilterRepository(private val database: AppDatabase) {
         ))
     }
 
-    // Получить все компоненты (для отладки)
-    suspend fun getAllComponents(): List<FilterComponentEntity> {
-        return database.filterComponentDao().getAllComponents()
+    // Получить компоненты для фильтра (упрощенная версия)
+    suspend fun getComponentsForFilter(filterId: Long): List<FilterComponent> {
+        // Временное решение - возвращаем пустой список
+        return emptyList()
+    }
+
+    suspend fun getFilterWithComponents(filterId: Long): Filter? {
+        val filterEntity = database.filterDao().getFilterById(filterId) ?: return null
+
+        // Временное решение - возвращаем фильтр с тестовыми компонентами
+        val testComponents = listOf(
+            ComponentType.PREDFILTER.copy(
+                id = 1,
+                filterId = filterId,
+                lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 150),
+                nextReplacementDate = ComponentType.PREDFILTER.calculateNextReplacement()
+            ),
+            ComponentType.CARBON_FILTER.copy(
+                id = 2,
+                filterId = filterId,
+                lastReplacementDate = System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 120),
+                nextReplacementDate = ComponentType.CARBON_FILTER.calculateNextReplacement()
+            )
+        )
+
+        return Filter(
+            id = filterEntity.id,
+            name = filterEntity.name,
+            location = filterEntity.location,
+            installationDate = filterEntity.installationDate,
+            components = testComponents,
+            hasAccumulatorTank = testComponents.any {
+                it.componentTypeId == ComponentType.ACCUMULATOR_TANK.componentTypeId
+            }
+        )
+    }
+
+    suspend fun updateComponentReplacement(componentId: Long, replacementDate: Long) {
+        val componentEntity = database.filterComponentDao().getComponentById(componentId)
+        componentEntity?.let {
+            val updatedEntity = it.copy(lastReplacementDate = replacementDate)
+            database.filterComponentDao().updateComponent(updatedEntity)
+        }
     }
 }

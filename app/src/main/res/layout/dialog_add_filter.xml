@@ -5,85 +5,119 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Заголовок -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Название фильтра *"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp" />
+        android:text="Добавить новый фильтр"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/nameEditText"
+    <!-- Поле названия -->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Например: Кухонный фильтр" />
+        android:layout_marginBottom="8dp">
 
-    <TextView
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Название фильтра" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Поле местоположения -->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Местоположение"
-        android:textSize="14sp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="8dp">
 
-    <EditText
-        android:id="@+id/locationEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Например: Под раковиной" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/locationEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Местоположение" />
 
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Кнопка выбора даты -->
     <Button
         android:id="@+id/installationDateButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Выбрать дату установки"
-        android:layout_marginTop="12dp" />
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.Button.OutlinedButton" />
 
+    <!-- Раздел компонентов -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Компоненты:"
-        android:textSize="14sp"
+        android:text="Компоненты фильтра:"
         android:textStyle="bold"
-        android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp" />
 
-    <LinearLayout
+    <!-- Спиннер для выбора компонентов -->
+    <Spinner
+        android:id="@+id/componentsSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginBottom="8dp" />
 
-        <Spinner
-            android:id="@+id/componentsSpinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp" />
+    <!-- Кнопка добавления компонента -->
+    <Button
+        android:id="@+id/addComponentButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Добавить выбранный компонент"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.Button.TextButton" />
 
-        <Button
-            android:id="@+id/addComponentButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+" />
+    <!-- Чекбокс для аккумулятора -->
+    <CheckBox
+        android:id="@+id/accumulatorCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Аккумуляторный бак"
+        android:layout_marginBottom="16dp" />
 
-    </LinearLayout>
+    <!-- Список выбранных компонентов -->
+    <TextView
+        android:id="@+id/selectedComponentsLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Выбранные компоненты:"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:id="@+id/selectedComponentsText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="Нет выбранных компонентов"
-        android:textSize="12sp"
-        android:background="#f5f5f5"
-        android:padding="8dp"
-        android:layout_marginTop="8dp"
-        android:minHeight="60dp" />
+        android:textColor="?android:attr/textColorSecondary"
+        android:background="@android:color/transparent"
+        android:minHeight="60dp"
+        android:gravity="top"
+        android:padding="8dp" />
 
+    <!-- Разделитель -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Кнопки сохранения и отмены -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:weightSum="2">
 
         <Button
             android:id="@+id/cancelButton"
@@ -91,7 +125,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Отмена"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3.Button.TextButton" />
 
         <Button
             android:id="@+id/saveButton"
@@ -99,8 +134,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Сохранить"
-            android:backgroundTint="#2196F3"
-            android:textColor="@android:color/white" />
+            android:layout_marginStart="8dp"
+            style="@style/Widget.Material3.Button" />
 
     </LinearLayout>
 

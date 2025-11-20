@@ -1,6 +1,7 @@
 package com.example.hohfiltermanager.data.local
 
 import androidx.room.*
+import com.example.hohfiltermanager.data.FilterComponent
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,4 +23,7 @@ interface FilterDao {
 
     @Query("DELETE FROM filters")
     suspend fun deleteAll()
+
+    @Insert
+    suspend fun insertComponent(component: FilterComponent)
 }
