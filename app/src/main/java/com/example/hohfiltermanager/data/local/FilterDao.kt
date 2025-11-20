@@ -29,9 +29,15 @@ interface FilterDao {
     @Query("SELECT * FROM filter_components WHERE id = :componentId")
     suspend fun getComponentById(componentId: Long): FilterComponentEntity?
 
+    @Query("SELECT * FROM filter_components WHERE filterId = :filterId")
+    suspend fun getComponentsForFilter(filterId: Long): List<FilterComponentEntity>
+
     @Update
     suspend fun updateComponent(entity: FilterComponentEntity)
 
     @Query("DELETE FROM filter_components WHERE filterId = :filterId")
     suspend fun deleteComponentsForFilter(filterId: Long)
+
+    @Query("DELETE FROM filter_components WHERE id = :componentId")
+    suspend fun deleteComponentById(componentId: Long)
 }

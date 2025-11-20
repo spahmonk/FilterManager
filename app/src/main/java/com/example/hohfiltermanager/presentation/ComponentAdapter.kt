@@ -18,13 +18,14 @@ import java.util.*
 
 class ComponentAdapter(
     private val onComponentClick: (FilterComponent) -> Unit,
-    private val onReplaceClick: (FilterComponent) -> Unit
+    private val onReplaceClick: (FilterComponent) -> Unit,
+    private val onDeleteClick: (FilterComponent) -> Unit
 ) : ListAdapter<FilterComponent, ComponentAdapter.ComponentViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComponentViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_component, parent, false)
-        return ComponentViewHolder(view, onComponentClick, onReplaceClick)
+        return ComponentViewHolder(view, onComponentClick, onReplaceClick, onDeleteClick)
     }
 
     override fun onBindViewHolder(holder: ComponentViewHolder, position: Int) {
@@ -34,7 +35,8 @@ class ComponentAdapter(
     class ComponentViewHolder(
         itemView: View,
         private val onComponentClick: (FilterComponent) -> Unit,
-        private val onReplaceClick: (FilterComponent) -> Unit
+        private val onReplaceClick: (FilterComponent) -> Unit,
+        private val onDeleteClick: (FilterComponent) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
         private val iconImage: ImageView = itemView.findViewById(R.id.componentIcon)
         private val nameText: TextView = itemView.findViewById(R.id.componentName)
@@ -43,6 +45,7 @@ class ComponentAdapter(
         private val nextReplacementText: TextView = itemView.findViewById(R.id.nextReplacementDate)
         private val progressBar: ProgressBar = itemView.findViewById(R.id.replacementProgress)
         private val replaceButton: Button = itemView.findViewById(R.id.replaceButton)
+        private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
 
         private var currentComponent: FilterComponent? = null
 
@@ -54,29 +57,28 @@ class ComponentAdapter(
             replaceButton.setOnClickListener {
                 currentComponent?.let { onReplaceClick(it) }
             }
+
+            deleteButton.setOnClickListener {
+                currentComponent?.let { onDeleteClick(it) }
+            }
         }
 
         fun bind(component: FilterComponent) {
             currentComponent = component
 
-            // Устанавливаем иконку
             iconImage.setImageResource(component.imageResId)
-
             nameText.text = component.name
 
             val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 
-            // Дата последней замены
             lastReplacementText.text = "Заменен: ${dateFormat.format(Date(component.lastReplacementDate))}"
 
-            // Дата следующей замены и прогресс
             if (component.nextReplacementDate != null) {
-                nextReplacementText.text = "Следующая замена: ${dateFormat.format(Date(component.nextReplacementDate))}"
+                nextReplacementText.text = "Следующая замена: ${dateFormat.format(Date(component.nextReplacementDate!!))}"
 
                 val progress = component.getProgressPercentage()
                 progressBar.progress = progress
 
-                // Статус компонента
                 when {
                     component.needsReplacement() -> {
                         statusText.text = "🚨 ТРЕБУЕТ ЗАМЕНЫ!"

@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateStats(filters: List<Filter>) {
         val totalFilters = filters.size
-        val totalComponents = filters.sumOf { it.components.size }
         val needsAttention = filters.count { it.getComponentsNeedingReplacement().isNotEmpty() }
 
         binding.statsText.text =

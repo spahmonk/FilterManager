@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.hohfiltermanager.data.ComponentType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,6 +27,7 @@ class ComponentDetailsActivity : AppCompatActivity() {
     private var purchaseUrl: String = ""
     private var lastReplacementDate: Date? = null
     private var nextReplacementDate: Date? = null
+    private var lifespanMonths: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,13 +48,22 @@ class ComponentDetailsActivity : AppCompatActivity() {
         installationInstructions = intent.getStringExtra("installation_instructions") ?: "Инструкция не доступна"
         videoUrl = intent.getStringExtra("video_url") ?: ""
         purchaseUrl = intent.getStringExtra("purchase_url") ?: ""
+        lifespanMonths = intent.getIntExtra("lifespan_months", 0)
 
         val lastReplacementMillis = intent.getLongExtra("last_replacement_date", -1)
-        val nextReplacementMillis = intent.getLongExtra("next_replacement_date", -1)
+        var nextReplacementMillis = intent.getLongExtra("next_replacement_date", -1)
 
         if (lastReplacementMillis != -1L) {
             lastReplacementDate = Date(lastReplacementMillis)
         }
+
+        if (nextReplacementMillis == -1L && lastReplacementMillis != -1L && lifespanMonths > 0) {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = lastReplacementMillis
+            calendar.add(Calendar.MONTH, lifespanMonths)
+            nextReplacementMillis = calendar.timeInMillis
+        }
+
         if (nextReplacementMillis != -1L) {
             nextReplacementDate = Date(nextReplacementMillis)
         }
@@ -90,7 +99,6 @@ class ComponentDetailsActivity : AppCompatActivity() {
         if (nextReplacementDate != null) {
             nextReplacementText.text = "Следующая замена: ${dateFormat.format(nextReplacementDate)}"
 
-            // Статус компонента
             val needsReplacement = nextReplacementDate!!.before(Date())
             if (needsReplacement) {
                 statusText.text = "❌ ТРЕБУЕТ ЗАМЕНЫ"
@@ -174,7 +182,6 @@ class ComponentDetailsActivity : AppCompatActivity() {
             .setTitle("Подтверждение замены")
             .setMessage("Вы подтверждаете, что заменили компонент \"$componentName\" $currentDate?")
             .setPositiveButton("Подтвердить") { _, _ ->
-                // Возвращаем результат в FilterDetailsActivity
                 val resultIntent = Intent()
                 resultIntent.putExtra("replaced_component_id", componentId)
                 resultIntent.putExtra("replacement_date", Date().time)
